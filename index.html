@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Studies — Arijay Mehta</title>
+    <script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #1a1a1a;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --card-bg: #f9fafb;
+            --section-gap: 3.5rem;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Nav */
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            padding: 0.75rem 0;
+        }
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav .logo { font-weight: 700; font-size: 1rem; }
+        nav .nav-links { display: flex; gap: 1.5rem; }
+        nav a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.15s;
+        }
+        nav a:hover { color: var(--text); }
+
+        /* Header */
+        header {
+            padding: 3.5rem 0 1.5rem;
+        }
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        header .subtitle {
+            color: var(--muted);
+            font-size: 1.1rem;
+            max-width: 680px;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 2.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        .stat { text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+        .stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* Sections */
+        section { padding: var(--section-gap) 0; }
+        section + section { border-top: 1px solid var(--border); }
+        h2 { font-size: 1.35rem; font-weight: 600; margin-bottom: 0.75rem; }
+        h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .section-desc { color: var(--muted); margin-bottom: 1.5rem; max-width: 700px; font-size: 0.95rem; }
+
+        /* Pipeline steps */
+        .pipeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .pipeline-step {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.1rem;
+            position: relative;
+        }
+        .pipeline-step .step-num {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        .pipeline-step h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        .pipeline-step p {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* Methodology */
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .method-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+        .method-card h3 { font-size: 1rem; margin-bottom: 0.35rem; }
+        .method-card .weight-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .method-card p { font-size: 0.85rem; color: var(--muted); }
+        .formula-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 0.9rem;
+            color: var(--text);
+            margin-top: 0.5rem;
+        }
+
+        /* Callout */
+        .callout {
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin-top: 1.5rem;
+            font-size: 0.88rem;
+            color: var(--text);
+        }
+        .callout strong { color: var(--accent); }
+
+        /* Peer Groups */
+        .sector-block { margin-bottom: 1rem; }
+        .sector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+        .sector-header:hover { background: #f0f1f3; }
+        .sector-header h3 { margin: 0; font-size: 0.95rem; }
+        .sector-header .sector-meta { font-size: 0.8rem; color: var(--muted); }
+        .sector-header .arrow { transition: transform 0.2s; font-size: 0.75rem; color: var(--muted); }
+        .sector-block.open .arrow { transform: rotate(90deg); }
+        .sector-body { display: none; padding: 0.75rem 0 0; }
+        .sector-block.open .sector-body { display: block; }
+        .pg-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-bottom: 0.5rem; }
+        .pg-table th {
+            text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--border);
+            color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;
+        }
+        .pg-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+        .pg-table tr:last-child td { border-bottom: none; }
+        .metric-pill {
+            display: inline-block; background: #eef2ff; color: #3b5bdb;
+            padding: 0.15rem 0.45rem; border-radius: 3px; font-size: 0.75rem; margin: 0.1rem 0.15rem 0.1rem 0;
+        }
+        .metric-pill.value { background: #f0fdf4; color: #15803d; }
+        .metric-pill { position: relative; cursor: default; }
+        .metric-pill .tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            padding: 0.5rem 0.65rem;
+            border-radius: 6px;
+            width: 260px;
+            z-index: 50;
+            pointer-events: none;
+            white-space: normal;
+            font-weight: 400;
+        }
+        .metric-pill:hover .tooltip { display: block; }
+
+        /* Charts */
+        .chart-container { margin-bottom: 2.5rem; }
+        .chart-container h3 { font-size: 1.05rem; margin-bottom: 0.25rem; }
+        .chart-desc { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.75rem; }
+
+        /* Scatter controls */
+        .scatter-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .scatter-controls button {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.78rem;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: #fff;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .scatter-controls button:hover { background: var(--card-bg); color: var(--text); }
+
+        /* Sortable table */
+        .table-controls {
+            display: flex; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap; align-items: center;
+        }
+        .table-controls input {
+            padding: 0.45rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; width: 220px;
+        }
+        .table-controls select {
+            padding: 0.45rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fff;
+        }
+        .score-table-wrap {
+            max-height: 480px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;
+        }
+        .score-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        .score-table thead { position: sticky; top: 0; background: #fff; z-index: 1; }
+        .score-table th {
+            text-align: left; padding: 0.6rem 0.75rem; border-bottom: 2px solid var(--border);
+            color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 0.03em; cursor: pointer; user-select: none; white-space: nowrap;
+        }
+        .score-table th:hover { color: var(--text); }
+        .score-table th .sort-arrow { font-size: 0.65rem; margin-left: 0.25rem; }
+        .score-table td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .score-table td:nth-child(2) { white-space: normal; max-width: 200px; }
+        .score-table tbody tr { cursor: pointer; }
+        .score-table tbody tr:nth-child(even) td { background: #f9fafb; }
+        .score-table tr:hover td { background: #eef2ff !important; }
+        .score-table tr.selected td { background: #dbeafe !important; font-weight: 600; }
+        .score-bar {
+            display: inline-block; height: 6px; border-radius: 3px; vertical-align: middle; margin-right: 0.4rem;
+        }
+
+        /* Examples */
+        .examples-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+        .example-card {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;
+        }
+        .example-card .ticker-label {
+            font-size: 0.75rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .example-card h3 { margin-bottom: 0.35rem; }
+        .example-card .peer-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+        .example-scores { display: flex; gap: 1rem; margin-bottom: 0.75rem; }
+        .example-score-item { text-align: center; }
+        .example-score-item .val { font-size: 1.3rem; font-weight: 700; }
+        .example-score-item .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+        .example-card p { font-size: 0.82rem; color: var(--muted); }
+
+        /* Download */
+        .download-card {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem; max-width: 560px;
+        }
+        .download-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .download-card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
+        .btn {
+            display: inline-block; background: var(--accent); color: #fff; padding: 0.6rem 1.5rem;
+            border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: background 0.15s;
+        }
+        .btn:hover { background: var(--accent-hover); }
+
+        /* Models teaser */
+        .models-teaser {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem; max-width: 700px;
+        }
+        .models-teaser h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .models-teaser p { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .models-teaser a { color: var(--accent); text-decoration: none; }
+
+        /* Fullscreen overlay */
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #fff;
+            z-index: 200;
+            overflow: auto;
+            padding: 1.5rem;
+        }
+        .fullscreen-overlay.active { display: block; }
+        .fullscreen-close {
+            position: fixed;
+            top: 1rem; right: 1.5rem;
+            background: var(--text);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            z-index: 201;
+        }
+        .fullscreen-close:hover { background: #333; }
+        .expand-btn {
+            padding: 0.3rem 0.7rem;
+            font-size: 0.78rem;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            background: #fff;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-bottom: 0.75rem;
+            display: inline-block;
+        }
+        .expand-btn:hover { background: var(--card-bg); color: var(--text); }
+
+        /* Peer description */
+        .pg-description {
+            font-size: 0.82rem;
+            color: var(--muted);
+            padding: 0.5rem 0.75rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* Company Lookup */
+        .lookup-input {
+            padding: 0.6rem 1rem; border: 1px solid var(--border); border-radius: 6px;
+            font-size: 1rem; width: 300px; margin-bottom: 0.5rem;
+        }
+        .lookup-suggestions {
+            position: absolute; background: #fff; border: 1px solid var(--border); border-radius: 6px;
+            max-height: 200px; overflow-y: auto; width: 300px; z-index: 50; display: none;
+        }
+        .lookup-suggestions div {
+            padding: 0.4rem 0.75rem; cursor: pointer; font-size: 0.85rem;
+        }
+        .lookup-suggestions div:hover { background: var(--card-bg); }
+        .lookup-wrap { position: relative; display: inline-block; }
+        .company-detail { display: none; margin-top: 1.5rem; }
+        .company-detail.active { display: block; }
+        .company-header-info { margin-bottom: 1.5rem; }
+        .company-header-info h3 { font-size: 1.2rem; margin-bottom: 0.25rem; }
+        .company-header-info .meta { color: var(--muted); font-size: 0.85rem; }
+        .history-table-wrap {
+            border: 1px solid var(--border); border-radius: 8px; overflow: auto; margin-bottom: 2rem; max-height: 600px;
+        }
+        .history-table {
+            width: 100%; border-collapse: collapse; font-size: 0.8rem; white-space: nowrap;
+        }
+        .history-table th {
+            text-align: left; padding: 0.5rem 0.6rem; border-bottom: 2px solid var(--border);
+            color: var(--muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase;
+            letter-spacing: 0.03em; position: sticky; top: 0; background: #fff; z-index: 2;
+        }
+        .history-table th:first-child { position: sticky; left: 0; z-index: 3; background: #fff; }
+        .history-table td {
+            padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--border);
+        }
+        .history-table tbody tr:nth-child(even):not([style]) td { background: #f9fafb; }
+        .history-table .metric-label {
+            font-weight: 600; position: sticky; left: 0; background: inherit; min-width: 160px; z-index: 1;
+        }
+        .peer-compare-table {
+            width: 100%; border-collapse: collapse; font-size: 0.8rem;
+        }
+        .peer-compare-table th {
+            text-align: left; padding: 0.5rem 0.6rem; border-bottom: 2px solid var(--border);
+            color: var(--muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase;
+            white-space: nowrap; position: sticky; top: 0; background: #fff; z-index: 2;
+        }
+        .peer-compare-table th:first-child { position: sticky; left: 0; z-index: 3; background: #fff; }
+        .peer-compare-table th:nth-child(2) { position: sticky; left: 60px; z-index: 3; background: #fff; }
+        .peer-compare-table td {
+            padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--border); white-space: nowrap;
+        }
+        .peer-compare-table td:first-child { position: sticky; left: 0; background: inherit; z-index: 1; }
+        .peer-compare-table td:nth-child(2) { position: sticky; left: 60px; background: inherit; z-index: 1; }
+        .peer-compare-table tbody tr:nth-child(even) td { background: #f9fafb; }
+        .peer-compare-table tr.highlight td { background: #dbeafe !important; font-weight: 600; }
+        .peer-compare-table tbody tr { cursor: pointer; }
+        .peer-compare-table tbody tr:hover td { background: #eef2ff !important; }
+        .peer-compare-wrap {
+            border: 1px solid var(--border); border-radius: 8px; overflow: auto; max-height: 500px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; text-align: center;
+        }
+        footer a { color: var(--accent); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .method-grid { grid-template-columns: 1fr; }
+            .examples-grid { grid-template-columns: 1fr; }
+            .pipeline { grid-template-columns: 1fr 1fr; }
+            .container { padding: 0 1rem; }
+            header h1 { font-size: 1.5rem; }
+            .stats { gap: 1.5rem; }
+            .stat-value { font-size: 1.5rem; }
+            nav .nav-links { gap: 0.75rem; }
+            nav a { font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="container">
+        <span class="logo">Stock Studies</span>
+        <div class="nav-links">
+            <a href="#methodology">Methodology</a>
+            <a href="#peer-groups">Peer Groups</a>
+            <a href="#all-companies">Companies</a>
+            <a href="#explorer">Explorer</a>
+            <a href="#peer-comparison">Peer Comparison</a>
+            <a href="#company-lookup">Company Lookup</a>
+            <a href="#examples">Examples</a>
+            <a href="#download">Download</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    <header>
+        <h1>Equity Research & Scoring System</h1>
+        <p class="subtitle">
+            An end to end investment research system built on publicly available financial data covering ~1,200 US companies available on yFinance.
+            Starting from raw data, it scores every company on business quality, relative valuation, and balance sheet strength,
+            then surfaces the strongest investment candidates in a format designed for further analysis and financial modeling.
+        </p>
+        <div class="stats">
+            <div class="stat"><div class="stat-value">~1,200</div><div class="stat-label">Companies Scored</div></div>
+            <div class="stat"><div class="stat-value">47</div><div class="stat-label">Peer Scoring Groups</div></div>
+            <div class="stat"><div class="stat-value">11</div><div class="stat-label">Sectors</div></div>
+        </div>
+    </header>
+
+    <!-- How It Works -->
+    <section id="how-it-works">
+        <h2>How It Works</h2>
+        <p class="section-desc">
+            The system is fully automated. One script pulls, cleans, scores, and exports everything. The pipeline runs quarterly and updates all ~1,200 companies in a single pass.
+        </p>
+        <div class="pipeline">
+            <div class="pipeline-step">
+                <div class="step-num">Step 1</div>
+                <h4>Data Collection</h4>
+                <p>Pull raw financial data from yFinance's API across all ~1,200 US companies. Income statement, balance sheet, cash flow, and market data.</p>
+            </div>
+            <div class="pipeline-step">
+                <div class="step-num">Step 2</div>
+                <h4>Data Pipeline</h4>
+                <p>Python and SQL handle industry mapping, data quality checks, sanity bounds, and outlier flagging. Everything is cleaned before any analysis runs.</p>
+            </div>
+            <div class="pipeline-step">
+                <div class="step-num">Step 3</div>
+                <h4>Scoring Engine</h4>
+                <p>Each company is ranked on quality and value metrics within its industry peer group. Scores are peer relative, not absolute, so a good score means "good compared to companies in the same business."</p>
+            </div>
+            <div class="pipeline-step">
+                <div class="step-num">Step 4</div>
+                <h4>Output to Excel</h4>
+                <p>Results export to a formatted workbook with company scores, peer comparisons, visualizations, and worked scoring examples. Designed to surface the strongest candidates for deeper analysis.</p>
+            </div>
+        </div>
+        <div class="callout">
+            <strong>Why this matters:</strong> Every quarter this system runs, it records a full snapshot of financial data across all ~1,200 companies. Over time, this builds a proprietary historical database that is typically only available through paid services:
+            Koyfin ($39 to $79/mo), Financial Modeling Prep ($25 to $50/mo), or Wisesheets ($50/mo). Enterprise platforms like S&amp;P CapitalIQ and Bloomberg cost thousands per year. This system replicates that data collection entirely for free and updates automatically every quarter with one script. After 12 quarters, the database will contain three full years of quarterly history for every company.
+        </div>
+    </section>
+
+    <!-- Methodology -->
+    <section id="methodology">
+        <h2>Scoring Methodology</h2>
+        <p class="section-desc">
+            49 metrics are pulled per company, but each company is scored on a maximum of four quality and four value metrics specific to its peer group.
+            Using only four keeps the signal clean and the output easy to interpret. More metrics means more noise, and the goal is to
+            highlight the handful of fundamentals that actually differentiate companies within each industry.
+            The remaining metrics are retained as research context for deeper analysis.
+            The three component scores combine into a single Quality Adjusted Value (QAV) score.
+        </p>
+        <div class="method-grid">
+            <div class="method-card">
+                <h3>Quality Score</h3>
+                <span class="weight-badge">WEIGHT VARIES BY SECTOR</span>
+                <p>Ranks a company's fundamentals (margins, returns, growth) as a percentile against its peer group. Adjusted &plusmn;8 points based on 3 year trend direction, blending pipeline history with yFinance backfill. Requires a minimum of 3 peers with data per metric.</p>
+            </div>
+            <div class="method-card">
+                <h3>Value Score</h3>
+                <span class="weight-badge">WEIGHT VARIES BY SECTOR</span>
+                <p>Ranks valuation multiples vs. peers (lower is better). Negative multiples are automatically excluded. Mean reversion bonus of up to +10 points if the stock's P/E trades more than 15% below its own 3 year average. If less than 30% of value weight is available, the score defaults to 50 (neutral).</p>
+            </div>
+            <div class="method-card">
+                <h3>Balance Sheet Score</h3>
+                <span class="weight-badge">WEIGHT VARIES BY SECTOR</span>
+                <p>Interest coverage determines regime (Strong, Adequate, Tight, Stressed). Thresholds are industry adjusted: industries with contracted revenue and variable costs need less coverage cushion than those with volatile revenue and fixed costs.</p>
+            </div>
+        </div>
+        <div class="formula-box">
+            QAV = (Quality &times; Q<sub>w</sub>) + (Value &times; V<sub>w</sub>) + (Balance Sheet &times; BS<sub>w</sub>) &nbsp;&nbsp;|&nbsp;&nbsp; Capped at 55 if Quality &lt; 30 or Value &lt; 30
+        </div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:0.75rem;">
+            Each score carries a confidence level (high, medium, low) based on data completeness. Every score includes an audit trail: Data Gaps (what was missing or excluded and why) and Score Drivers (which specific metrics are driving the score up or down).
+        </p>
+        <div style="margin-top:1.25rem;">
+            <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Sector Weights</h3>
+            <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.5rem;">
+                The relative importance of quality, value, and balance sheet varies by sector. Technology weights quality at 50% because great tech businesses compound value over time.
+                Energy weights value at 45% because commodity businesses are valued primarily on cash flow yield. Utilities weight balance sheet at 35% because leverage is the primary risk factor for regulated infrastructure.
+            </p>
+        </div>
+    </section>
+
+    <!-- Peer Groups -->
+    <section id="peer-groups">
+        <h2>Peer Scoring Groups by Sector</h2>
+        <p class="section-desc">
+            Each company is scored against its peer group, not the full universe. Click a sector to see its peer groups and the specific quality and value metrics used for scoring, along with their weights.
+        </p>
+        <div id="peer-groups-container"></div>
+    </section>
+
+    <!-- All Companies -->
+    <section id="all-companies">
+        <h2>All Companies</h2>
+        <p class="section-desc">All ~1,200 companies ranked by QAV score. Search by ticker or company name. Click column headers to sort. Filter by sector or peer group.</p>
+        <div class="table-controls">
+            <input type="text" id="table-search" placeholder="Search ticker or company...">
+            <select id="table-sector-filter"><option value="">All Sectors</option></select>
+            <select id="table-pg-filter"><option value="">All Peer Groups</option></select>
+        </div>
+        <div class="score-table-wrap">
+            <table class="score-table">
+                <thead>
+                    <tr>
+                        <th data-col="ticker">Ticker <span class="sort-arrow"></span></th>
+                        <th data-col="company">Company <span class="sort-arrow"></span></th>
+                        <th data-col="sector">Sector <span class="sort-arrow"></span></th>
+                        <th data-col="peerGroup">Peer Group <span class="sort-arrow"></span></th>
+                        <th data-col="quality">Quality <span class="sort-arrow"></span></th>
+                        <th data-col="value">Value <span class="sort-arrow"></span></th>
+                        <th data-col="qav">QAV <span class="sort-arrow"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Scoring Explorer -->
+    <section id="explorer">
+        <h2>Scoring Explorer</h2>
+        <p class="section-desc">Quality vs. Value scatter plot. Each dot is a company, colored by sector. Top right = high quality at a reasonable price.</p>
+        <div class="scatter-controls">
+            <button onclick="toggleAllSectors(true)">Show All</button>
+            <button onclick="toggleAllSectors(false)">Hide All</button>
+            <button onclick="clearSelection()">Clear Selection</button>
+        </div>
+        <div id="scatter"></div>
+    </section>
+
+    <!-- Peer Group Comparison -->
+    <section id="peer-comparison">
+        <h2>Peer Group Comparison</h2>
+        <p class="section-desc">
+            Search by ticker, company name, or peer group to see how companies compare on the metrics that matter for their industry. Only the metrics used for scoring are shown.
+        </p>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:start;">
+            <div class="lookup-wrap">
+                <input type="text" class="lookup-input" id="peer-search" placeholder="Search ticker or company..." autocomplete="off">
+                <div class="lookup-suggestions" id="peer-suggestions"></div>
+            </div>
+            <select id="peer-pg-filter" class="lookup-input" style="width:240px;cursor:pointer;">
+                <option value="">Select a peer group...</option>
+            </select>
+        </div>
+        <div id="peer-detail" style="display:none;margin-top:1.5rem;">
+            <div id="peer-header-info" class="company-header-info"></div>
+            <button class="expand-btn" onclick="expandToFullscreen('peer-compare-table')">Expand Full Screen</button>
+            <div class="peer-compare-wrap">
+                <table class="peer-compare-table" id="peer-compare-table"></table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Company Lookup -->
+    <section id="company-lookup">
+        <h2>Company Lookup</h2>
+        <p class="section-desc">
+            Search for any company to see its full financial history. All 49 metrics recorded by the pipeline are shown, organized by category. Each column is a quarterly snapshot. As the pipeline runs each quarter, proprietary history accumulates over time.
+        </p>
+        <div class="lookup-wrap">
+            <input type="text" class="lookup-input" id="company-search" placeholder="Search by ticker or company name..." autocomplete="off">
+            <div class="lookup-suggestions" id="lookup-suggestions"></div>
+        </div>
+        <div class="company-detail" id="company-detail">
+            <div class="company-header-info" id="company-header-info"></div>
+            <button class="expand-btn" onclick="expandToFullscreen('history-table')">Expand Full Screen</button>
+            <div class="history-table-wrap">
+                <table class="history-table" id="history-table"></table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fullscreen overlay -->
+    <div class="fullscreen-overlay" id="fullscreen-overlay">
+        <button class="fullscreen-close" onclick="closeFullscreen()">Close</button>
+        <div id="fullscreen-content"></div>
+    </div>
+
+    <!-- Examples -->
+    <section id="examples">
+        <h2>Worked Scoring Examples</h2>
+        <p class="section-desc">
+            Four companies across different sectors and scoring outcomes, showing how the same framework adapts to different business models. Full step by step breakdowns are in the downloadable tracker.
+        </p>
+        <div class="examples-grid">
+            <div class="example-card">
+                <div class="ticker-label">MSFT</div>
+                <h3>Microsoft Corporation</h3>
+                <div class="peer-label">Software / SaaS &middot; Technology</div>
+                <div class="example-scores">
+                    <div class="example-score-item"><div class="val" style="color:#2563eb">60.0</div><div class="lbl">Quality</div></div>
+                    <div class="example-score-item"><div class="val" style="color:#15803d">41.0</div><div class="lbl">Value</div></div>
+                    <div class="example-score-item"><div class="val" style="color:#7c3aed">100</div><div class="lbl">BS</div></div>
+                    <div class="example-score-item"><div class="val">59.4</div><div class="lbl">QAV</div></div>
+                </div>
+                <p>Strong business fundamentals but trades at a premium to Software / SaaS peers on most valuation metrics. Currently trading well below its own historical valuation, which boosts the value score. No debt on the balance sheet.</p>
+            </div>
+            <div class="example-card">
+                <div class="ticker-label">ALL</div>
+                <h3>Allstate Corporation</h3>
+                <div class="peer-label">Insurance &middot; Financials</div>
+                <div class="example-scores">
+                    <div class="example-score-item"><div class="val" style="color:#2563eb">75.6</div><div class="lbl">Quality</div></div>
+                    <div class="example-score-item"><div class="val" style="color:#15803d">76.9</div><div class="lbl">Value</div></div>
+                    <div class="example-score-item"><div class="val" style="color:#7c3aed">100</div><div class="lbl">BS</div></div>
+                    <div class="example-score-item"><div class="val">80.9</div><div class="lbl">QAV</div></div>
+                </div>
+                <p>Massive profitability turnaround after aggressive rate increases. ROE went from negative to nearly 40%. Insurance is scored on P/E and Price to Book only because policyholder reserves are not traditional debt, making EV multiples meaningless. The key question: how much of this improvement is sustainable vs. cyclical?</p>
+            </div>
+            <div class="example-card">
+                <div class="ticker-label">AAL</div>
+                <h3>American Airlines</h3>
+                <div class="peer-label">Airlines &middot; Industrials</div>
+                <div class="example-scores">
+                    <div class="example-score-item"><div class="val" style="color:#2563eb">14.9</div><div class="lbl">Quality</div></div>
+                    <div class="example-score-item"><div class="val" style="color:#15803d">24.5</div><div class="lbl">Value</div></div>
+                    <div class="example-score-item"><div class="val" style="color:#7c3aed">8.6</div><div class="lbl">BS</div></div>
+                    <div class="example-score-item"><div class="val">16.9</div><div class="lbl">QAV</div></div>
+                </div>
+                <p>Weak and deteriorating fundamentals across the board. All quality metrics are trending in the wrong direction over the past three years. Barely able to cover its interest payments from operations, earning a near zero balance sheet score. With $38B in enterprise value against only $7.5B in market cap, debt is the dominant claim on the business.</p>
+            </div>
+            <div class="example-card">
+                <div class="ticker-label">RCUS</div>
+                <h3>Arcus Biosciences</h3>
+                <div class="peer-label">Biotechnology &middot; Healthcare</div>
+                <div class="example-scores">
+                    <div class="example-score-item"><div class="val" style="color:#2563eb">14.1</div><div class="lbl">Quality</div></div>
+                    <div class="example-score-item"><div class="val" style="color:#15803d">44.1</div><div class="lbl">Value</div></div>
+                    <div class="example-score-item"><div class="val" style="color:#7c3aed">0</div><div class="lbl">BS</div></div>
+                    <div class="example-score-item"><div class="val">21.8</div><div class="lbl">QAV</div></div>
+                </div>
+                <p>Clinical stage biotech where negative margins and cash burn are expected by design. Most valuation metrics are excluded because earnings and cash flow are negative, leaving EV/Sales as the only basis for comparison. The Biotechnology framework weights revenue growth and gross margin highest because at this stage, pipeline progress and commercial viability are what matter.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download -->
+    <section id="download">
+        <h2>Download</h2>
+        <div class="download-card" style="margin-bottom: 1.5rem;">
+            <h3>Stock Tracker</h3>
+            <p>Complete scoring workbook with all ~1,200 companies, peer group breakdowns, scoring methodology, and four worked scoring examples (MSFT, ALL, AAL, RCUS).</p>
+            <a href="downloads/Stock_Tracker.xlsx" class="btn" download>Download Stock Tracker (.xlsx)</a>
+        </div>
+        <div class="download-card" style="margin-bottom: 1.5rem;">
+            <h3>Qualys (QLYS) Financial Model</h3>
+            <p>Full three statement DCF model for a SaaS cybersecurity company, built from SEC 10-K filings. Revenue build driven by net revenue retention and new customer acquisition, scenario toggles, sensitivity analysis, and comparable companies analysis across 9 direct cybersecurity peers.</p>
+            <a href="downloads/QLYS_Financial_Model.xlsx" class="btn" download>Download QLYS Model (.xlsx)</a>
+        </div>
+        <div class="models-teaser">
+            <h3>More Models Coming</h3>
+            <p>
+                Building individual company financial models across industries to show how valuation frameworks adapt to different business types.
+                Each model is a full three statement DCF built from SEC filings, covering companies with different revenue models, cost structures,
+                capital requirements, competitive moats, and levels of financial disclosure.
+            </p>
+            <p>
+                <a href="mailto:asmehta4@gmail.com">Contact me</a> to learn more about these models and the companies being covered.
+            </p>
+        </div>
+    </section>
+
+    <footer>
+        <p>Arijay Mehta &middot; <a href="mailto:asmehta4@gmail.com">asmehta4@gmail.com</a> &middot; <a href="https://www.linkedin.com/in/arijay-mehta-17353b174/" target="_blank">LinkedIn</a></p>
+        <p style="margin-top:0.35rem;font-size:0.75rem;">Data last updated: April 13, 2026</p>
+    </footer>
+
+</div>
+
+<script>
+const SECTOR_COLORS = {
+    'Technology': '#2563eb',
+    'Healthcare': '#059669',
+    'Financials': '#7c3aed',
+    'Industrials': '#d97706',
+    'Consumer Discretionary': '#dc2626',
+    'Consumer Staples': '#65a30d',
+    'Energy': '#0891b2',
+    'Communication Services': '#db2777',
+    'Materials': '#92400e',
+    'Real Estate': '#4f46e5',
+    'Utilities': '#6b7280',
+};
+
+let allData = [];
+let historyData = [];
+let rationale = {};
+let peerDescriptions = {};
+let companyDescriptions = {};
+let pgWeights = {};
+let sortCol = 'qav';
+let sortDir = -1;
+
+Promise.all([
+    fetch('data/chart_data.json').then(r => r.json()),
+    fetch('data/peer_groups.json').then(r => r.json()),
+    fetch('data/metric_rationale.json').then(r => r.json()),
+    fetch('data/company_history.json').then(r => r.json()),
+    fetch('data/peer_descriptions.json').then(r => r.json()),
+    fetch('data/company_descriptions.json').then(r => r.json()).catch(() => ({})),
+]).then(([chartData, pgData, rationaleData, histData, descData, compDescData]) => {
+    allData = chartData;
+    historyData = histData;
+    rationale = rationaleData;
+    peerDescriptions = descData;
+    companyDescriptions = compDescData;
+    pgWeights = pgData;
+    renderScatter(chartData);
+    renderPeerGroups(pgData);
+    initTable(chartData);
+    initCompanyLookup();
+    initPeerGroupDropdown();
+});
+
+/* ── Scatter ───────────────────────────────────────────────── */
+function renderScatter(data) {
+    const sectors = [...new Set(data.map(d => d.sector))].sort();
+    const traces = sectors.map(sector => {
+        const pts = data.filter(d => d.sector === sector && d.quality != null && d.value != null);
+        return {
+            x: pts.map(d => d.quality),
+            y: pts.map(d => d.value),
+            customdata: pts.map(d => d.ticker),
+            text: pts.map(d => `<b>${d.ticker}</b>: ${d.company}<br>Sector: ${d.sector}<br>Peer Group: ${d.peerGroup}<br>Quality: ${d.quality} | Value: ${d.value} | QAV: ${d.qav}`),
+            hoverinfo: 'text',
+            mode: 'markers',
+            type: 'scatter',
+            name: sector,
+            marker: { color: SECTOR_COLORS[sector] || '#999', size: 5.5, opacity: 0.7 },
+        };
+    });
+    Plotly.newPlot('scatter', traces, {
+        xaxis: { title: 'Quality Score', range: [0, 100], gridcolor: '#f0f0f0' },
+        yaxis: { title: 'Value Score', range: [0, 100], gridcolor: '#f0f0f0' },
+        plot_bgcolor: '#fff', paper_bgcolor: '#fff',
+        margin: { t: 10, r: 20, b: 50, l: 50 },
+        legend: { orientation: 'h', y: -0.18, font: { size: 10 } },
+        height: 520,
+    }, { responsive: true });
+
+    document.getElementById('scatter').on('plotly_click', onScatterClick);
+
+    // Show ticker labels when few enough points are visible
+    document.getElementById('scatter').on('plotly_legendclick', function(eventData) {
+        setTimeout(updateScatterLabels, 50);
+    });
+    document.getElementById('scatter').on('plotly_legenddoubleclick', function(eventData) {
+        setTimeout(updateScatterLabels, 50);
+    });
+}
+
+function updateScatterLabels() {
+    const el = document.getElementById('scatter');
+    if (!el.data) return;
+    let visibleCount = 0;
+    el.data.forEach(trace => {
+        if (trace.visible !== 'legendonly' && trace.visible !== false) {
+            visibleCount += (trace.x || []).length;
+        }
+    });
+    const updates = el.data.map((trace, i) => {
+        const isVisible = trace.visible !== 'legendonly' && trace.visible !== false;
+        if (isVisible && visibleCount <= 150) {
+            return { mode: 'markers+text', textposition: 'top center', textfont: { size: 8, color: '#555' },
+                     customdata: trace.text ? trace.text.map(t => { const m = t.match(/<b>(\w+)<\/b>/); return m ? m[1] : ''; }) : [] };
+        }
+        return { mode: 'markers', textposition: 'top center' };
+    });
+    updates.forEach((u, i) => {
+        if (u.customdata) {
+            Plotly.restyle('scatter', { mode: u.mode, text: [u.customdata], textposition: u.textposition, textfont: [u.textfont] }, [i]);
+        } else {
+            // Restore hover text
+            const pts = allData.filter(d => d.sector === el.data[i].name && d.quality != null && d.value != null);
+            Plotly.restyle('scatter', { mode: u.mode, text: [pts.map(d => `<b>${d.ticker}</b>: ${d.company}<br>Sector: ${d.sector}<br>Peer Group: ${d.peerGroup}<br>Quality: ${d.quality} | Value: ${d.value} | QAV: ${d.qav}`)] }, [i]);
+        }
+    });
+}
+
+function toggleAllSectors(show) {
+    const el = document.getElementById('scatter');
+    const indices = Array.from({ length: el.data.length }, (_, i) => i);
+    Plotly.restyle('scatter', { visible: show ? true : 'legendonly' }, indices);
+    // Reset marker sizes and colors
+    if (show) {
+        el.data.forEach((trace, i) => {
+            const count = (trace.x || []).length;
+            Plotly.restyle('scatter', {
+                'marker.size': [Array(count).fill(5.5)],
+                'marker.opacity': [Array(count).fill(0.7)],
+                'marker.color': [Array(count).fill(SECTOR_COLORS[trace.name] || '#999')],
+            }, [i]);
+        });
+    }
+    setTimeout(updateScatterLabels, 50);
+}
+
+/* ── Peer Groups ───────────────────────────────────────────── */
+function renderPeerGroups(pgData) {
+    const container = document.getElementById('peer-groups-container');
+    const sectorWeights = pgData.sectorWeights;
+    const sectors = pgData.sectors;
+
+    for (const [sector, groups] of Object.entries(sectors).sort((a,b) => a[0].localeCompare(b[0]))) {
+        const sw = sectorWeights[sector] || sectorWeights['DEFAULT'];
+        const totalCompanies = groups.reduce((sum, g) => sum + g.count, 0);
+
+        const block = document.createElement('div');
+        block.className = 'sector-block';
+        block.innerHTML = `
+            <div class="sector-header" onclick="this.parentElement.classList.toggle('open')">
+                <h3>${sector}</h3>
+                <div>
+                    <span class="sector-meta">${groups.length} peer group${groups.length > 1 ? 's' : ''} &middot; ${totalCompanies} companies &middot; Q ${(sw.quality*100).toFixed(0)}% / V ${(sw.value*100).toFixed(0)}% / BS ${(sw.bs*100).toFixed(0)}%</span>
+                    <span class="arrow"> &#9654;</span>
+                </div>
+            </div>
+            <div class="sector-body">
+                ${groups.map(g => {
+                    const desc = peerDescriptions[g.name] || '';
+                    return `
+                    ${desc ? `<div class="pg-description"><strong>${g.name}:</strong> ${desc}</div>` : ''}
+                    `;
+                }).join('')}
+                <table class="pg-table">
+                    <thead>
+                        <tr>
+                            <th>Peer Group</th>
+                            <th>#</th>
+                            <th>Quality Metrics</th>
+                            <th>Value Metrics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${groups.map(g => `
+                            <tr>
+                                <td><strong>${g.name}</strong></td>
+                                <td>${g.count}</td>
+                                <td>${Object.entries(g.quality).map(([m,w]) => {
+                                    const tip = (rationale[g.name] && rationale[g.name].quality && rationale[g.name].quality[m]) || '';
+                                    return `<span class="metric-pill">${m} ${(w*100).toFixed(0)}%${tip ? `<span class="tooltip">${tip}</span>` : ''}</span>`;
+                                }).join('')}</td>
+                                <td>${Object.entries(g.value).map(([m,w]) => {
+                                    const tip = (rationale[g.name] && rationale[g.name].value && rationale[g.name].value[m]) || '';
+                                    return `<span class="metric-pill value">${m} ${(w*100).toFixed(0)}%${tip ? `<span class="tooltip">${tip}</span>` : ''}</span>`;
+                                }).join('')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        container.appendChild(block);
+    }
+}
+
+/* ── Sortable Table ────────────────────────────────────────── */
+function initTable(data) {
+    const sectorFilter = document.getElementById('table-sector-filter');
+    const pgFilter = document.getElementById('table-pg-filter');
+    const sectors = [...new Set(data.map(d => d.sector))].sort();
+    sectors.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        sectorFilter.appendChild(opt);
+    });
+    const pgs = [...new Set(data.map(d => d.peerGroup))].sort();
+    pgs.forEach(pg => {
+        const opt = document.createElement('option');
+        opt.value = pg; opt.textContent = pg;
+        pgFilter.appendChild(opt);
+    });
+
+    document.getElementById('table-search').addEventListener('input', renderTable);
+    sectorFilter.addEventListener('change', () => {
+        const selectedSector = sectorFilter.value;
+        pgFilter.innerHTML = '<option value="">All Peer Groups</option>';
+        const filteredPgs = selectedSector
+            ? [...new Set(data.filter(d => d.sector === selectedSector).map(d => d.peerGroup))].sort()
+            : pgs;
+        filteredPgs.forEach(pg => {
+            const opt = document.createElement('option');
+            opt.value = pg; opt.textContent = pg;
+            pgFilter.appendChild(opt);
+        });
+        renderTable();
+    });
+    pgFilter.addEventListener('change', renderTable);
+
+    document.querySelectorAll('.score-table th').forEach(th => {
+        th.addEventListener('click', () => {
+            const col = th.dataset.col;
+            if (sortCol === col) sortDir *= -1;
+            else { sortCol = col; sortDir = col === 'ticker' || col === 'company' || col === 'sector' || col === 'peerGroup' || col === 'confidence' ? 1 : -1; }
+            renderTable();
+        });
+    });
+
+    renderTable();
+}
+
+function renderTable() {
+    const search = document.getElementById('table-search').value.toLowerCase();
+    const sector = document.getElementById('table-sector-filter').value;
+    const pg = document.getElementById('table-pg-filter').value;
+
+    let filtered = allData.filter(d => {
+        if (search && !d.ticker.toLowerCase().includes(search) && !d.company.toLowerCase().includes(search)) return false;
+        if (sector && d.sector !== sector) return false;
+        if (pg && d.peerGroup !== pg) return false;
+        return true;
+    });
+
+    filtered.sort((a, b) => {
+        let va = a[sortCol], vb = b[sortCol];
+        if (va == null) va = -Infinity;
+        if (vb == null) vb = -Infinity;
+        if (typeof va === 'string') return va.localeCompare(vb) * sortDir;
+        return (va - vb) * sortDir;
+    });
+
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = filtered.map(d => `
+        <tr data-ticker="${d.ticker}" style="cursor:pointer">
+            <td><strong>${d.ticker}</strong></td>
+            <td>${d.company}</td>
+            <td>${d.sector}</td>
+            <td>${d.peerGroup}</td>
+            <td>${scoreCell(d.quality)}</td>
+            <td>${scoreCell(d.value)}</td>
+            <td>${scoreCell(d.qav)}</td>
+        </tr>
+    `).join('');
+
+    tbody.querySelectorAll('tr').forEach(row => {
+        row.addEventListener('click', () => {
+            const ticker = row.dataset.ticker;
+            if (!ticker) return;
+            // Highlight selected row
+            tbody.querySelectorAll('tr.selected').forEach(r => r.classList.remove('selected'));
+            row.classList.add('selected');
+            navigateToCompany(ticker);
+        });
+    });
+
+    document.querySelectorAll('.score-table th').forEach(th => {
+        const arrow = th.querySelector('.sort-arrow');
+        if (th.dataset.col === sortCol) arrow.textContent = sortDir > 0 ? ' \u25B2' : ' \u25BC';
+        else arrow.textContent = '';
+    });
+}
+
+function scoreCell(val) {
+    if (val == null) return '<span style="color:#ccc">--</span>';
+    const color = val >= 65 ? '#15803d' : val >= 40 ? '#d97706' : '#dc2626';
+    const width = Math.max(2, val * 0.6);
+    return `<span class="score-bar" style="width:${width}px;background:${color}"></span>${Math.round(val)}`;
+}
+
+/* ── Company Lookup ────────────────────────────────────────── */
+function initCompanyLookup() {
+    setupSearch('company-search', 'lookup-suggestions', showCompanyHistory);
+    setupSearch('peer-search', 'peer-suggestions', showPeerComparison);
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.lookup-wrap')) {
+            document.querySelectorAll('.lookup-suggestions').forEach(el => el.style.display = 'none');
+        }
+    });
+}
+
+function setupSearch(inputId, suggestionsId, callback) {
+    const input = document.getElementById(inputId);
+    const suggestions = document.getElementById(suggestionsId);
+
+    input.addEventListener('input', () => {
+        const q = input.value.toLowerCase().trim();
+        if (q.length < 1) { suggestions.style.display = 'none'; return; }
+        const matches = allData.filter(d =>
+            d.ticker.toLowerCase().startsWith(q) || d.company.toLowerCase().includes(q)
+        ).slice(0, 12);
+        if (matches.length === 0) { suggestions.style.display = 'none'; return; }
+        suggestions.innerHTML = matches.map(d =>
+            `<div data-ticker="${d.ticker}"><strong>${d.ticker}</strong> &mdash; ${d.company}</div>`
+        ).join('');
+        suggestions.style.display = 'block';
+        suggestions.querySelectorAll('div').forEach(el => {
+            el.addEventListener('click', () => {
+                input.value = el.dataset.ticker;
+                suggestions.style.display = 'none';
+                callback(el.dataset.ticker);
+            });
+        });
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const q = input.value.toUpperCase().trim();
+            const match = allData.find(d => d.ticker === q);
+            if (match) { suggestions.style.display = 'none'; callback(q); }
+        }
+    });
+}
+
+const METRIC_MAP = {
+    'ROIC': 'ROIC', 'Gross Margin': 'Gross Margin', 'FCF Margin': 'FCF Margin',
+    'Revenue YoY %': 'Revenue YoY %', 'ROE': 'ROE', 'ROA': 'ROA',
+    'EBITDA Margin': 'EBITDA Margin', 'EBIT Margin': 'EBIT Margin',
+    'Net Inc. Margin': 'Net Inc. Margin',
+    'EV/EBITDA': 'EV/EBITDA', 'P/FCF': 'Price to FCF', 'P/E': 'P/E',
+    'Price to Book': 'Price to Book', 'EV/Sales': 'EV/Sales', 'PEG Ratio': 'PEG Ratio',
+};
+
+function getPeerGroupMetrics(pg) {
+    let qMetrics = [], vMetrics = [];
+    for (const [sector, groups] of Object.entries(pgWeights.sectors)) {
+        const g = groups.find(g => g.name === pg);
+        if (g) { qMetrics = Object.keys(g.quality); vMetrics = Object.keys(g.value); break; }
+    }
+    return { qMetrics, vMetrics };
+}
+
+function showPeerComparison(ticker) {
+    const company = allData.find(d => d.ticker === ticker);
+    if (!company) return;
+    const pg = company.peerGroup;
+    const desc = peerDescriptions[pg] || '';
+
+    const compDesc = companyDescriptions[ticker] || '';
+    document.getElementById('peer-header-info').innerHTML = `
+        <h3>${ticker}: ${company.company}</h3>
+        <div class="meta">${company.sector} &middot; ${pg} &middot; QAV: ${company.qav}</div>
+        ${compDesc ? `<p style="margin-top:0.5rem;font-size:0.85rem;color:var(--muted)">${compDesc}</p>` : ''}
+        ${desc ? `<p style="margin-top:0.5rem;font-size:0.85rem;color:var(--muted);font-style:italic"><strong>${pg}:</strong> ${desc}</p>` : ''}
+    `;
+
+    // Sync the peer group dropdown
+    document.getElementById('peer-pg-filter').value = pg;
+
+    showPeerComparisonByGroup(pg, ticker, true);
+
+    // Also populate company history below
+    document.getElementById('company-search').value = ticker;
+    showCompanyHistory(ticker);
+}
+
+function showCompanyHistory(ticker) {
+    const detail = document.getElementById('company-detail');
+    const headerEl = document.getElementById('company-header-info');
+    const company = allData.find(d => d.ticker === ticker);
+    if (!company) return;
+    const pg = company.peerGroup;
+    const desc = peerDescriptions[pg] || '';
+
+    headerEl.innerHTML = `
+        <h3>${ticker}: ${company.company}</h3>
+        <div class="meta">${company.sector} &middot; ${pg} &middot; QAV: ${company.qav}</div>
+    `;
+
+    const companyHistory = historyData.filter(d => d.Ticker === ticker).sort((a,b) => a['Snapshot Date'].localeCompare(b['Snapshot Date']));
+
+    const metricCategories = [
+        { label: 'PRICE & SCALE', metrics: ['Current Price ($)', 'Market Cap ($M)', 'Enterprise Value ($M)', 'Revenue TTM ($M)'] },
+        { label: 'GROWTH', metrics: ['Revenue QoQ %', 'Revenue YoY %'] },
+        { label: 'PROFITABILITY', metrics: ['Gross Margin', 'EBITDA Margin', 'EBIT Margin', 'Net Inc. Margin', 'FCF Margin'] },
+        { label: 'RETURNS', metrics: ['ROIC', 'ROE', 'ROA'] },
+        { label: 'PER SHARE', metrics: ['EPS (TTM)', 'EPS 5Y Growth', 'Forward EPS'] },
+        { label: 'VALUATION', metrics: ['P/E', 'Forward P/E', 'PEG Ratio', 'Price to Sales', 'Price to Book', 'Price to FCF', 'EV/EBITDA', 'EV/Sales'] },
+        { label: 'CAPITAL RETURNS', metrics: ['Dividend Yield', 'Buyback Yield', 'Payout Ratio'] },
+        { label: 'BALANCE SHEET', metrics: ['Debt to Equity', 'Net Debt / EBITDA', 'Current Ratio', 'Quick Ratio', 'Interest Coverage', 'Total Cash ($M)', 'Total Debt ($M)'] },
+        { label: 'CASH FLOW', metrics: ['Operating Cash Flow ($M)', 'Free Cash Flow ($M)', 'Buyback ($M)'] },
+        { label: 'SHARES & OWNERSHIP', metrics: ['Shares Outstanding ($M)', 'Insider Ownership %', 'Institutional Ownership %'] },
+        { label: 'MOMENTUM & SENTIMENT', metrics: ['Beta', '52W High ($)', '52W Low ($)', '52W Change %', '50-Day Avg ($)', '200-Day Avg ($)', 'Short Float %', 'Short Ratio'] },
+        { label: 'SCORES', metrics: ['Pure Quality', 'Pure Value', 'Quality-Adj Value', 'Score Confidence'] },
+    ];
+
+    let histHTML = '<thead><tr><th>Metric</th>';
+    companyHistory.forEach(h => {
+        const source = h.Source === 'yfinance' ? ' (yF)' : '';
+        histHTML += `<th>${h['Snapshot Date']}${source}</th>`;
+    });
+    histHTML += '</tr></thead><tbody>';
+    metricCategories.forEach(cat => {
+        histHTML += `<tr><td colspan="${companyHistory.length + 1}" style="background:#eef2ff;font-weight:700;font-size:0.72rem;letter-spacing:0.04em;padding:0.4rem 0.6rem;color:#3b5bdb">${cat.label}</td></tr>`;
+        cat.metrics.forEach(metric => {
+            const hasData = companyHistory.some(h => h[metric] != null && h[metric] !== '');
+            if (!hasData) return;
+            histHTML += `<tr><td class="metric-label">${metric}</td>`;
+            companyHistory.forEach(h => {
+                histHTML += `<td>${fmtVal(h[metric], metric)}</td>`;
+            });
+            histHTML += '</tr>';
+        });
+    });
+    histHTML += '</tbody>';
+    document.getElementById('history-table').innerHTML = histHTML;
+    detail.classList.add('active');
+}
+
+const VALUATION_METRICS = ['EV/EBITDA','EV/Sales','P/E','Forward P/E','PEG Ratio','Price to Book','Price to Sales','Price to FCF'];
+const PCT_METRICS = ['Gross Margin','EBITDA Margin','EBIT Margin','Net Inc. Margin','FCF Margin',
+    'ROIC','ROE','ROA','Revenue YoY %','Revenue QoQ %','Dividend Yield','Buyback Yield','Payout Ratio',
+    'Insider Ownership %','Institutional Ownership %','Short Float %','52W Change %','EPS 5Y Growth'];
+const SCORE_METRICS = ['Pure Quality','Pure Value','Quality-Adj Value','score','Quality','Value'];
+
+function fmtVal(v, metric) {
+    if (v == null || v === '') return '<span style="color:#ccc">--</span>';
+    if (typeof v === 'string') return v;
+    if (PCT_METRICS.includes(metric)) return (v * 100).toFixed(1) + '%';
+    if (VALUATION_METRICS.includes(metric)) return v.toFixed(1) + 'x';
+    if (SCORE_METRICS.includes(metric)) return v.toFixed(1);
+    if (metric.includes('$M') || metric.includes('($M)')) {
+        if (Math.abs(v) >= 1000) return (v/1000).toFixed(1) + 'B';
+        return v.toFixed(0) + 'M';
+    }
+    if (metric.includes('$')) return '$' + v.toFixed(2);
+    if (['Debt to Equity','Net Debt / EBITDA','Current Ratio','Quick Ratio','Interest Coverage'].includes(metric)) return v.toFixed(2) + 'x';
+    if (['Short Ratio','Beta'].includes(metric)) return v.toFixed(2);
+    if (['Shares Outstanding ($M)'].includes(metric)) return v.toFixed(0) + 'M';
+    return v.toFixed(2);
+}
+
+/* ── Fullscreen ────────────────────────────────────────────── */
+function expandToFullscreen(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    const overlay = document.getElementById('fullscreen-overlay');
+    const content = document.getElementById('fullscreen-content');
+    content.innerHTML = '';
+    const clone = table.cloneNode(true);
+    clone.style.width = '100%';
+    content.appendChild(clone);
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeFullscreen() {
+    document.getElementById('fullscreen-overlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeFullscreen();
+});
+
+/* ── Peer Group Dropdown ───────────────────────────────────── */
+function initPeerGroupDropdown() {
+    const select = document.getElementById('peer-pg-filter');
+    const pgs = [...new Set(allData.map(d => d.peerGroup))].sort();
+    pgs.forEach(pg => {
+        const opt = document.createElement('option');
+        opt.value = pg; opt.textContent = pg;
+        select.appendChild(opt);
+    });
+    select.addEventListener('change', () => {
+        const pg = select.value;
+        if (!pg) return;
+        document.getElementById('peer-search').value = '';
+        showPeerComparisonByGroup(pg);
+    });
+}
+
+function showPeerComparisonByGroup(pg, highlightTicker, skipHeader) {
+    const { qMetrics, vMetrics } = getPeerGroupMetrics(pg);
+
+    if (!skipHeader) {
+        const desc = peerDescriptions[pg] || '';
+        const sector = allData.find(d => d.peerGroup === pg)?.sector || '';
+        document.getElementById('peer-header-info').innerHTML = `
+            <h3>${pg}</h3>
+            <div class="meta">${sector}</div>
+            ${desc ? `<p style="margin-top:0.5rem;font-size:0.85rem;color:var(--muted);font-style:italic">${desc}</p>` : ''}
+        `;
+    }
+
+    const peerData = historyData.filter(d => d['Peer Scoring Group'] === pg && d.Source !== 'yfinance')
+        .sort((a,b) => (b['Quality-Adj Value'] || 0) - (a['Quality-Adj Value'] || 0));
+    const peerMetrics = [...qMetrics.map(m => METRIC_MAP[m] || m), ...vMetrics.map(m => METRIC_MAP[m] || m)];
+
+    // Calculate peer group medians
+    const medianRow = {};
+    const scoreCols = [...peerMetrics, 'Pure Quality', 'Pure Value', 'Quality-Adj Value'];
+    scoreCols.forEach(m => {
+        const vals = peerData.map(d => d[m]).filter(v => v != null && typeof v === 'number').sort((a,b) => a - b);
+        if (vals.length === 0) { medianRow[m] = null; return; }
+        const mid = Math.floor(vals.length / 2);
+        medianRow[m] = vals.length % 2 === 0 ? (vals[mid - 1] + vals[mid]) / 2 : vals[mid];
+    });
+
+    let html = '<thead><tr><th>Ticker</th><th>Company</th>';
+    peerMetrics.forEach(m => { html += `<th>${m}</th>`; });
+    html += '<th>Quality</th><th>Value</th><th>QAV</th></tr></thead><tbody>';
+
+    // Median row first
+    html += '<tr style="background:#f0fdf4;font-weight:600;font-style:italic;border-bottom:2px solid var(--border)">';
+    html += '<td></td><td>Peer Group Median</td>';
+    peerMetrics.forEach(m => { html += `<td>${fmtVal(medianRow[m], m)}</td>`; });
+    html += `<td>${fmtVal(medianRow['Pure Quality'], 'score')}</td>`;
+    html += `<td>${fmtVal(medianRow['Pure Value'], 'score')}</td>`;
+    html += `<td>${fmtVal(medianRow['Quality-Adj Value'], 'score')}</td>`;
+    html += '</tr>';
+
+    peerData.forEach(d => {
+        const isTarget = highlightTicker && d.Ticker === highlightTicker;
+        html += `<tr class="${isTarget ? 'highlight' : ''}">`;
+        html += `<td><strong>${d.Ticker}</strong></td><td>${d.Company}</td>`;
+        peerMetrics.forEach(m => { html += `<td>${fmtVal(d[m], m)}</td>`; });
+        html += `<td>${fmtVal(d['Pure Quality'], 'score')}</td>`;
+        html += `<td>${fmtVal(d['Pure Value'], 'score')}</td>`;
+        html += `<td>${fmtVal(d['Quality-Adj Value'], 'score')}</td>`;
+        html += '</tr>';
+    });
+    html += '</tbody>';
+    document.getElementById('peer-compare-table').innerHTML = html;
+    document.getElementById('peer-detail').style.display = 'block';
+
+    // Make rows clickable to show company history
+    document.querySelectorAll('#peer-compare-table tbody tr').forEach(row => {
+        row.addEventListener('click', () => {
+            const ticker = row.querySelector('td strong')?.textContent;
+            if (ticker) {
+                document.getElementById('company-search').value = ticker;
+                showCompanyHistory(ticker);
+            }
+        });
+    });
+}
+
+/* ── Click on scatter to navigate ──────────────────────────── */
+function onScatterClick(data) {
+    if (!data || !data.points || !data.points[0]) return;
+    const ticker = data.points[0].customdata;
+    if (!ticker || !allData.find(d => d.ticker === ticker)) return;
+    navigateToCompany(ticker);
+}
+
+function navigateToCompany(ticker) {
+    const company = allData.find(d => d.ticker === ticker);
+    if (!company) return;
+
+    // Highlight on scatter
+    highlightOnScatter(ticker, company.sector);
+
+    // Update peer comparison (this also populates company history)
+    document.getElementById('peer-search').value = ticker;
+    showPeerComparison(ticker);
+}
+
+function clearSelection() {
+    // Reset scatter
+    toggleAllSectors(true);
+    // Clear All Companies highlight
+    document.querySelectorAll('#table-body tr.selected').forEach(r => r.classList.remove('selected'));
+    // Clear peer comparison
+    document.getElementById('peer-search').value = '';
+    document.getElementById('peer-pg-filter').value = '';
+    document.getElementById('peer-detail').style.display = 'none';
+    // Clear company history
+    document.getElementById('company-search').value = '';
+    document.getElementById('company-detail').classList.remove('active');
+}
+
+function highlightOnScatter(ticker, sector) {
+    const el = document.getElementById('scatter');
+    if (!el.data) return;
+
+    el.data.forEach((trace, i) => {
+        const isSector = trace.name === sector;
+        // Show only the selected sector
+        Plotly.restyle('scatter', { visible: isSector ? true : 'legendonly' }, [i]);
+
+        if (isSector) {
+            // Find the point index for this ticker
+            const pts = allData.filter(d => d.sector === sector && d.quality != null && d.value != null);
+            const sizes = pts.map(d => d.ticker === ticker ? 16 : 5.5);
+            const opacities = pts.map(d => d.ticker === ticker ? 1 : 0.5);
+            const colors = pts.map(d => d.ticker === ticker ? '#dc2626' : (SECTOR_COLORS[sector] || '#999'));
+            Plotly.restyle('scatter', {
+                'marker.size': [sizes],
+                'marker.opacity': [opacities],
+                'marker.color': [colors],
+            }, [i]);
+        }
+    });
+
+    setTimeout(updateScatterLabels, 100);
+}
+</script>
+
+</body>
+</html>
