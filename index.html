@@ -112,6 +112,13 @@
             letter-spacing: 0.05em;
             margin-bottom: 0.25rem;
         }
+        .pipeline-step .icon {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            background: #eef2ff; color: var(--accent);
+            border-radius: 8px; margin-bottom: 0.6rem;
+        }
+        .pipeline-step .icon svg { width: 20px; height: 20px; }
         .pipeline-step h4 {
             font-size: 0.9rem;
             margin-bottom: 0.25rem;
@@ -119,6 +126,79 @@
         .pipeline-step p {
             font-size: 0.8rem;
             color: var(--muted);
+        }
+        .pipeline {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            margin: 1.5rem 0;
+            flex-wrap: nowrap;
+        }
+        .pipeline-step {
+            flex: 1;
+            min-width: 0;
+        }
+        .pipeline-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--muted);
+            padding: 0 0.4rem;
+            flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .pipeline { flex-wrap: wrap; }
+            .pipeline-step { flex: 1 1 45%; }
+            .pipeline-arrow { display: none; }
+        }
+
+        /* Score formula visual */
+        .score-formula-visual {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 0.75rem;
+        }
+        .score-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .score-bar-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            width: 140px;
+            flex-shrink: 0;
+        }
+        .score-bar-container {
+            flex: 1;
+            height: 28px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .score-bar-sum {
+            border-top: 1px solid var(--border);
+            padding-top: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        .score-formula-note {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 0.75rem;
+            font-style: italic;
         }
 
         /* Methodology */
@@ -484,21 +564,28 @@
         </p>
         <div class="pipeline">
             <div class="pipeline-step">
+                <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a8 3 0 1 0 16 0 8 3 0 1 0-16 0"/><path d="M4 6v12a8 3 0 0 0 16 0V6"/><path d="M4 12a8 3 0 0 0 16 0"/></svg></div>
                 <div class="step-num">Step 1</div>
                 <h4>Data Collection</h4>
                 <p>Pull raw financial data from yFinance's API across all ~1,200 US companies. Income statement, balance sheet, cash flow, and market data.</p>
             </div>
+            <div class="pipeline-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
             <div class="pipeline-step">
+                <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
                 <div class="step-num">Step 2</div>
                 <h4>Data Pipeline</h4>
                 <p>Python and SQL handle industry mapping, data quality checks, sanity bounds, and outlier flagging. Everything is cleaned before any analysis runs.</p>
             </div>
+            <div class="pipeline-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
             <div class="pipeline-step">
+                <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
                 <div class="step-num">Step 3</div>
                 <h4>Scoring Engine</h4>
                 <p>Each company is ranked on quality and value metrics within its industry peer group. Scores are peer relative, not absolute, so a good score means "good compared to companies in the same business."</p>
             </div>
+            <div class="pipeline-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
             <div class="pipeline-step">
+                <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
                 <div class="step-num">Step 4</div>
                 <h4>Output to Excel</h4>
                 <p>Results export to a formatted workbook with company scores, peer comparisons, visualizations, and worked scoring examples. Designed to surface the strongest candidates for deeper analysis.</p>
@@ -537,17 +624,39 @@
                 <p>Interest coverage determines regime (Strong, Adequate, Tight, Stressed). Thresholds are industry adjusted: industries with contracted revenue and variable costs need less coverage cushion than those with volatile revenue and fixed costs.</p>
             </div>
         </div>
-        <div class="formula-box">
-            QAV = (Quality &times; Q<sub>w</sub>) + (Value &times; V<sub>w</sub>) + (Balance Sheet &times; BS<sub>w</sub>) &nbsp;&nbsp;|&nbsp;&nbsp; Capped at 55 if Quality &lt; 30 or Value &lt; 30
+        <div class="score-formula-visual">
+            <div class="score-bar-row">
+                <div class="score-bar-label" style="color:#2563eb">Quality</div>
+                <div class="score-bar-container"><div class="score-bar-fill" style="width:50%;background:#2563eb">50%</div></div>
+            </div>
+            <div class="score-bar-row">
+                <div class="score-bar-label" style="color:#15803d">Value</div>
+                <div class="score-bar-container"><div class="score-bar-fill" style="width:35%;background:#15803d">35%</div></div>
+            </div>
+            <div class="score-bar-row">
+                <div class="score-bar-label" style="color:#7c3aed">Balance Sheet</div>
+                <div class="score-bar-container"><div class="score-bar-fill" style="width:15%;background:#7c3aed">15%</div></div>
+            </div>
+            <div class="score-bar-row score-bar-sum">
+                <div class="score-bar-label" style="color:var(--text)">QAV Score</div>
+                <div class="score-bar-container" style="background:linear-gradient(to right, #2563eb 0%, #2563eb 50%, #15803d 50%, #15803d 85%, #7c3aed 85%, #7c3aed 100%)">
+                    <div style="height:100%;width:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.8rem;font-weight:700;">Weighted Combination</div>
+                </div>
+            </div>
+            <p class="score-formula-note">
+                Example shown uses Technology sector weights. Weights vary by sector: Energy emphasizes Value (45%), Utilities emphasize Balance Sheet (35%), Technology emphasizes Quality (50%). Capped at 55 if Quality or Value falls below 30.
+            </p>
         </div>
         <p style="font-size:0.82rem;color:var(--muted);margin-top:0.75rem;">
             Each score carries a confidence level (high, medium, low) based on data completeness. Every score includes an audit trail: Data Gaps (what was missing or excluded and why) and Score Drivers (which specific metrics are driving the score up or down).
         </p>
         <div style="margin-top:1.25rem;">
-            <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Sector Weights</h3>
+            <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Limitations</h3>
+            <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem;">
+                <strong>Peer groups are imperfect.</strong> Scores are percentile ranks within industry peer groups. Some peer groups are too broad, meaning businesses with genuinely different models sit together because there are not enough public comparables to support a narrower grouping. Always look at who is in the peer group before acting on a score. Expanding to global coverage is the long term solution.
+            </p>
             <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.5rem;">
-                The relative importance of quality, value, and balance sheet varies by sector. Technology weights quality at 50% because great tech businesses compound value over time.
-                Energy weights value at 45% because commodity businesses are valued primarily on cash flow yield. Utilities weight balance sheet at 35% because leverage is the primary risk factor for regulated infrastructure.
+                <strong>Scores are backwards looking.</strong> Every metric is historical. The market prices the future. A company can score poorly while the market has already priced in a recovery, and a company can score well because last year was exceptional while the business is quietly deteriorating. The score tells you where a company has been. The financial model is where the forward judgment happens.
             </p>
         </div>
     </section>
