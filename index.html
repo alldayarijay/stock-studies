@@ -625,26 +625,14 @@
             </div>
         </div>
         <div class="score-formula-visual">
-            <div class="score-bar-row">
-                <div class="score-bar-label" style="color:#2563eb">Quality</div>
-                <div class="score-bar-container"><div class="score-bar-fill" style="width:50%;background:#2563eb">50%</div></div>
-            </div>
-            <div class="score-bar-row">
-                <div class="score-bar-label" style="color:#15803d">Value</div>
-                <div class="score-bar-container"><div class="score-bar-fill" style="width:35%;background:#15803d">35%</div></div>
-            </div>
-            <div class="score-bar-row">
-                <div class="score-bar-label" style="color:#7c3aed">Balance Sheet</div>
-                <div class="score-bar-container"><div class="score-bar-fill" style="width:15%;background:#7c3aed">15%</div></div>
-            </div>
-            <div class="score-bar-row score-bar-sum">
-                <div class="score-bar-label" style="color:var(--text)">QAV Score</div>
-                <div class="score-bar-container" style="background:linear-gradient(to right, #2563eb 0%, #2563eb 50%, #15803d 50%, #15803d 85%, #7c3aed 85%, #7c3aed 100%)">
-                    <div style="height:100%;width:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.8rem;font-weight:700;">Weighted Combination</div>
-                </div>
+            <p style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.75rem;">QAV Score Composition (Technology Sector)</p>
+            <div style="display:flex;height:40px;border-radius:6px;overflow:hidden;">
+                <div style="width:50%;background:#2563eb;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.85rem;font-weight:600;">Quality 50%</div>
+                <div style="width:35%;background:#15803d;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.85rem;font-weight:600;">Value 35%</div>
+                <div style="width:15%;background:#7c3aed;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.75rem;font-weight:600;">BS 15%</div>
             </div>
             <p class="score-formula-note">
-                Example shown uses Technology sector weights. Weights vary by sector: Energy emphasizes Value (45%), Utilities emphasize Balance Sheet (35%), Technology emphasizes Quality (50%). Capped at 55 if Quality or Value falls below 30.
+                Weights vary by sector. Energy emphasizes Value (45%), Utilities emphasize Balance Sheet (35%), Technology emphasizes Quality (50%). QAV is capped at 55 if Quality or Value falls below 30.
             </p>
         </div>
         <p style="font-size:0.82rem;color:var(--muted);margin-top:0.75rem;">
